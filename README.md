@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="banner.png" alt="musicotter" width="180" />
+  <img src="banner.png" alt="musicotter" width="512" />
 </p>
 
 <h1 align="center">musicotter</h1>
