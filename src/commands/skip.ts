@@ -22,6 +22,7 @@ export class SkipCommand extends Command {
 		const skippedTitle = manager.queue.current.title;
 		manager.skip();
 
-		return interaction.reply(`Skipped: **${skippedTitle}**`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Skipped: **${skippedTitle}**`, ephemeral: true });
 	}
 }

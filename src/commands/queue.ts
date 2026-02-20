@@ -43,9 +43,11 @@ export class QueueCommand extends Command {
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(page >= totalPages)
 			);
-			return interaction.reply({ embeds: [embed], components: [row] });
+			autoDelete(interaction);
+			return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
 		}
 
-		return interaction.reply({ embeds: [embed] });
+		autoDelete(interaction);
+		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 }

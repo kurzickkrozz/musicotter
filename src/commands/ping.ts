@@ -3,7 +3,8 @@ import { Command } from '@sapphire/framework';
 import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
-	description: "Check the bot's latency"
+	description: "Check the bot's latency",
+	preconditions: ['BoundTextChannel']
 })
 export class PingCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

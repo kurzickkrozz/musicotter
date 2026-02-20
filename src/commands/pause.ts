@@ -26,7 +26,8 @@ export class PauseCommand extends Command {
 
 		const success = manager.pause();
 		if (success) {
-			return interaction.reply(`Paused: **${manager.queue.current.title}**`);
+			autoDelete(interaction);
+			return interaction.reply({ content: `Paused: **${manager.queue.current.title}**`, ephemeral: true });
 		}
 
 		autoDelete(interaction);

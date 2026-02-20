@@ -30,11 +30,11 @@ export class SetVCCommand extends Command {
 		if (channel) {
 			manager.boundVoiceChannelId = channel.id;
 			autoDelete(interaction);
-			return interaction.reply(`Bot restricted to voice channel <#${channel.id}>.`);
+			return interaction.reply({ content: `Bot restricted to voice channel <#${channel.id}>.`, ephemeral: true });
 		}
 
 		manager.boundVoiceChannelId = null;
 		autoDelete(interaction);
-		return interaction.reply('Voice channel restriction cleared. The bot can now join any voice channel.');
+		return interaction.reply({ content: 'Voice channel restriction cleared. The bot can now join any voice channel.', ephemeral: true });
 	}
 }

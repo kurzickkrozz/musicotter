@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://discord.js.org/"><img src="https://img.shields.io/badge/discord.js-v14-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.js v14" /></a>
+  <a href="https://www.sapphirejs.dev/"><img src="https://img.shields.io/badge/Sapphire-v5-FF4785?style=for-the-badge" alt="Sapphire Framework" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" /></a>
   <a href="https://unlicense.org/"><img src="https://img.shields.io/badge/license-Unlicense-blue?style=for-the-badge" alt="License" /></a>
@@ -24,15 +25,18 @@
 | | Feature | Description |
 |---|---------|-------------|
 | :musical_note: | **Multi-Source Playback** | YouTube (URLs, playlists, search), Spotify (auto-resolves to YouTube), and SoundCloud |
-| :clipboard: | **Full Queue Management** | Add, skip, shuffle, loop (track/queue), clear, and jump to any position |
+| :clipboard: | **Full Queue Management** | Add, skip, shuffle, loop (track/queue), clear, move, and jump to any position |
+| :fast_forward: | **Seek Support** | Seek forward, backward, or to an absolute position in the current track |
 | :shield: | **Per-Server State** | Independent queues, volume, DJ roles, and settings for every server |
 | :lock: | **DJ Role System** | Server admins can assign a DJ role to restrict sensitive commands |
-| :tv: | **Now Playing Embeds** | Rich embeds with track info, progress bar, and volume display |
+| :tv: | **Now Playing Embeds** | Rich embeds with track info, progress bar, volume, and loop indicator |
 | :books: | **Paginated Queue** | Interactive prev/next buttons for browsing large queues |
-| :wave: | **Auto-Disconnect** | Leaves after 30s with no listeners or 10 seconds idle |
-| :mag: | **Interactive Search** | Browse the top 5 YouTube results and pick one with buttons |
+| :wave: | **Auto-Disconnect** | Leaves after 30s with no listeners or 10s with an empty queue |
+| :mag: | **Interactive Search** | Browse the top 5 YouTube or SoundCloud results and pick one with buttons |
 | :loud_sound: | **Volume Control** | Adjustable from 0 to 150% (default: 70%) |
 | :link: | **Channel Binding** | Bind the bot to a specific text channel (`/settc`) or voice channel (`/setvc`) |
+| :microphone: | **Lyrics** | Fetch song lyrics from Genius, defaults to the currently playing track |
+| :radio: | **Radio Stations** | Pre-configured playlist stations you can browse and play instantly |
 | :zap: | **29 Slash Commands** | Every command registered as a Discord slash command |
 
 ---
@@ -53,7 +57,7 @@
 | `/skip` | Skip the current track |
 | `/seek <time>` | Seek to a position in the current track (`+`, `-`, or absolute) |
 | `/skipto <position>` | Jump to a specific queue position :lock: |
-| `/stop` | Stop playback and clear the queue :lock: |
+| `/stop` | Stop playback, clear the queue, and disconnect :lock: |
 | `/radiostations` | Browse and play pre-configured radio stations |
 
 </details>
@@ -92,7 +96,7 @@
 |---------|-------------|
 | `/lyrics [song]` | Show lyrics for a song (defaults to currently playing) |
 | `/help` | List all commands (sent via DM) |
-| `/about` | Show bot information |
+| `/about` | Show bot info, uptime, and stats |
 | `/ping` | Check bot latency |
 
 </details>
@@ -102,9 +106,9 @@
 
 | Command | Description |
 |---------|-------------|
-| `/debug` | Show runtime & server debug info (memory, stats, guilds) |
+| `/debug` | Show runtime & server debug info (memory, tracks played, guilds) |
 | `/evaluate` | View the last 30 lines of bot logs |
-| `/invitelink` | Get the bot invite link |
+| `/invite` | Get the bot invite link |
 
 </details>
 
@@ -116,7 +120,7 @@
 
 ```bash
 # 1. Clone & install
-git clone https://github.com/your-username/musicotter.git
+git clone https://github.com/kurzickkrozz/musicotter.git
 cd musicotter
 npm install
 
@@ -211,6 +215,10 @@ sudo chmod a+rx /usr/local/bin/yt-dlp
 
 Verify: `yt-dlp --version`
 
+### Optional: YouTube Cookies
+
+If you need to play age-restricted or region-locked YouTube content, place a `cookies.txt` file (Netscape format) in the project root. The bot will automatically detect and use it with yt-dlp.
+
 ---
 
 ## Development
@@ -251,7 +259,7 @@ Audio plays in voice channel
   |
   +--[Track ends]--> AudioPlayerStatus.Idle --> playNext() --> [repeat]
   |
-  +--[Queue empty]--> 5-min idle timer --> auto-disconnect
+  +--[Queue empty]--> 10s idle timer --> auto-disconnect
 ```
 
 ### Source Resolution
@@ -263,6 +271,24 @@ Audio plays in voice channel
 | Spotify URL | Track metadata via oEmbed API, resolved to YouTube via yt-dlp search |
 | SoundCloud URL | Direct streaming via play-dl |
 | Search term | YouTube search via yt-dlp, plays first result |
+
+### Seek Pipeline
+
+```
+/seek "1:30"
+  |
+  v
+Parse time (absolute, +relative, -relative) --> calculate target seconds
+  |
+  v
+yt-dlp --get-url --> direct audio URL
+  |
+  v
+ffmpeg -ss <seconds> -i <url> --> piped audio stream
+  |
+  v
+createAudioResource(stream) --> AudioPlayer.play() --> playback resumes at new position
+```
 
 ### Per-Server Isolation
 
@@ -289,11 +315,11 @@ musicotter/
 │   │   ├── shuffle.ts       volume.ts         forceremove.ts
 │   │   ├── settc.ts         setvc.ts          setdj.ts
 │   │   ├── help.ts          about.ts          ping.ts          lyrics.ts
-│   │   ├── debug.ts         evaluate.ts       movetrack.ts     invitelink.ts
+│   │   ├── debug.ts         evaluate.ts       movetrack.ts     invite.ts
 │   │   └── radiostations.ts
 │   ├── interaction-handlers/
 │   │   ├── queuePagination.ts          # Prev/next buttons for /queue
-│   │   ├── searchSelection.ts          # Search result selection buttons
+│   │   ├── searchSelection.ts          # YouTube search result buttons
 │   │   ├── scSearchSelection.ts       # SoundCloud search result buttons
 │   │   └── stationSelection.ts        # Radio station selection buttons
 │   ├── lib/
@@ -304,22 +330,24 @@ musicotter/
 │   │   ├── Queue.ts                    # Array-backed queue with loop/shuffle
 │   │   ├── AudioSourceResolver.ts      # Source detection, resolution & streaming
 │   │   ├── GuildMusicManager.ts        # Per-guild player, connection & queue
-│   │   ├── MusicManagerStore.ts        # Guild manager collection
-│   │   ├── LogBuffer.ts               # In-memory log capture for /evaluate
+│   │   ├── MusicManagerStore.ts        # Guild manager collection & stats
+│   │   ├── LogBuffer.ts               # In-memory ring buffer for /evaluate
 │   │   └── stations.ts               # Radio station playlist config
 │   ├── listeners/
-│   │   ├── ready.ts                    # Startup banner
+│   │   ├── ready.ts                    # Startup banner & presence
 │   │   ├── voiceStateUpdate.ts         # Auto-disconnect on empty channel
 │   │   └── commands/chatInputCommands/
-│   │       ├── chatInputCommandDenied.ts
-│   │       └── chatInputCommandSuccess.ts
+│   │       ├── chatInputCommandDenied.ts  # Ephemeral precondition errors
+│   │       └── chatInputCommandSuccess.ts # Command usage logging
 │   └── preconditions/
+│       ├── BoundTextChannel.ts        # Enforce text channel binding
 │       ├── InVoiceChannel.ts           # User must be in a voice channel
 │       └── DJOnly.ts                   # DJ role or Manage Server required
 ├── .env.example
 ├── .gitignore
 ├── .prettierignore
 ├── .sapphirerc.yml
+├── banner.png
 ├── logo.png
 ├── package.json
 └── tsconfig.json
@@ -335,8 +363,11 @@ musicotter/
 | [Sapphire Framework](https://www.sapphirejs.dev/) | Command framework with preconditions & decorators |
 | [@discordjs/voice](https://discord.js.org/docs/packages/voice/main) | Voice connection & audio playback |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | YouTube search, metadata & audio streaming |
-| [play-dl](https://github.com/play-dl/play-dl) | URL validation & SoundCloud streaming |
+| [youtube-dl-exec](https://github.com/microlinkhq/youtube-dl-exec) | Node.js wrapper for yt-dlp |
+| [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) | Bundled FFmpeg binary for seek & audio processing |
+| [play-dl](https://github.com/play-dl/play-dl) | URL validation, SoundCloud streaming & playlist extraction |
 | [genius-lyrics](https://github.com/Lebyy/genius-lyrics) | Song lyrics from Genius |
+| [@snazzah/davey](https://github.com/Snazzah/davey) | Discord DAVE voice encryption protocol support |
 | [TypeScript](https://www.typescriptlang.org/) | Type-safe development |
 
 ---
@@ -348,6 +379,7 @@ musicotter/
 
 - Ensure `yt-dlp` is installed and available in your system PATH
 - Run `yt-dlp --version` to verify
+- Check the bot has **Speak** and **Connect** permissions in the voice channel
 
 </details>
 
@@ -377,8 +409,25 @@ musicotter/
 <details>
 <summary><strong>Spotify links not working</strong></summary>
 
-- Spotify tracks are resolved by searching YouTube for the track title and artist
+- Spotify tracks are resolved by searching YouTube for the track title and artist via the public oEmbed API (no Spotify credentials needed)
 - Spotify playlists and albums are not supported — only individual track links
+
+</details>
+
+<details>
+<summary><strong>Now-playing embeds not appearing</strong></summary>
+
+- Ensure the bot has **Send Messages** and **Embed Links** permissions in the bound text channel
+- Use `/settc` in the desired channel to rebind
+
+</details>
+
+<details>
+<summary><strong>Age-restricted YouTube videos not playing</strong></summary>
+
+- Place a `cookies.txt` file (Netscape format) in the project root
+- Export cookies from a browser where you are logged into YouTube
+- The bot will automatically pass them to yt-dlp
 
 </details>
 

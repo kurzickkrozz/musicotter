@@ -32,6 +32,7 @@ export class ForceRemoveCommand extends Command {
 			return interaction.reply({ content: `No tracks by **${targetUser.username}** found in the queue.`, ephemeral: true });
 		}
 
-		return interaction.reply(`Removed **${removed}** track${removed === 1 ? '' : 's'} by **${targetUser.username}** from the queue.`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Removed **${removed}** track${removed === 1 ? '' : 's'} by **${targetUser.username}** from the queue.`, ephemeral: true });
 	}
 }

@@ -20,6 +20,7 @@ export class StopCommand extends Command {
 		}
 
 		manager.stop();
-		return interaction.reply('Stopped playback and cleared the queue.');
+		autoDelete(interaction);
+		return interaction.reply({ content: 'Stopped playback and cleared the queue.', ephemeral: true });
 	}
 }

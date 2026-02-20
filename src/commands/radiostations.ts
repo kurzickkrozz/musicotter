@@ -3,6 +3,7 @@ import { Command } from '@sapphire/framework';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { EMBED_COLOR } from '../lib/constants';
 import { SORTED_STATIONS } from '../lib/stations';
+import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Browse pre-configured radio stations (playlists)',
@@ -15,6 +16,7 @@ export class RadioStationsCommand extends Command {
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		if (SORTED_STATIONS.length === 0) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'No radio stations have been configured yet.', ephemeral: true });
 		}
 
@@ -50,6 +52,7 @@ export class RadioStationsCommand extends Command {
 			);
 		}
 
+		autoDelete(interaction);
 		return interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
 	}
 }

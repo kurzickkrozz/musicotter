@@ -26,7 +26,8 @@ export class ResumeCommand extends Command {
 
 		const success = manager.resume();
 		if (success) {
-			return interaction.reply(`Resumed: **${manager.queue.current.title}**`);
+			autoDelete(interaction);
+			return interaction.reply({ content: `Resumed: **${manager.queue.current.title}**`, ephemeral: true });
 		}
 
 		autoDelete(interaction);

@@ -23,6 +23,7 @@ export class NowPlayingCommand extends Command {
 		const elapsed = Math.floor((Date.now() - manager!.playStartedAt) / 1000);
 		const embed = createNowPlayingEmbed(current, manager!.volume, manager!.queue.loopMode, elapsed);
 
-		return interaction.reply({ embeds: [embed] });
+		autoDelete(interaction);
+		return interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 }

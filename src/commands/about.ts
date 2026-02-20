@@ -5,7 +5,8 @@ import { EMBED_COLOR, BOT_NAME, BOT_VERSION, BOT_OWNER, PREFIX, ALT_PREFIX } fro
 import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
-	description: 'Show information about the bot'
+	description: 'Show information about the bot',
+	preconditions: ['BoundTextChannel']
 })
 export class AboutCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

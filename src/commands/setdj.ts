@@ -36,6 +36,7 @@ export class SetDJCommand extends Command {
 		}
 
 		manager.djRoleId = role.id;
-		return interaction.reply(`DJ role set to: <@&${role.id}>`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `DJ role set to: <@&${role.id}>`, ephemeral: true });
 	}
 }

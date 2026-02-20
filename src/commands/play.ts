@@ -1,5 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
+import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Play a song or add it to the queue',
@@ -20,7 +21,7 @@ export class PlayCommand extends Command {
 		const member = await interaction.guild!.members.fetch(interaction.user.id);
 		const voiceChannel = member.voice.channel!;
 
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		const manager = this.container.musicManagers.getOrCreate(interaction.guildId!);
 
@@ -36,6 +37,7 @@ export class PlayCommand extends Command {
 			const result = await manager.resolver.resolve(query, interaction.user);
 
 			if (result.type === 'track') {
+				autoDelete(interaction);
 				if (!manager.queue.current) {
 					manager.queue.enqueue(result.track);
 					await manager.playNext();
@@ -53,9 +55,11 @@ export class PlayCommand extends Command {
 				await manager.playNext();
 			}
 
+			autoDelete(interaction);
 			return interaction.editReply(`Added **${result.tracks.length}** tracks from **${result.playlistTitle}** to the queue.`);
 		} catch (error) {
 			this.container.logger.error('Play command error:', error);
+			autoDelete(interaction);
 			return interaction.editReply(`Failed to play: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		}
 	}

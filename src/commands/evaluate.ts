@@ -3,7 +3,8 @@ import { Command } from '@sapphire/framework';
 import { OWNER_ID } from '../lib/constants';
 
 @ApplyOptions<Command.Options>({
-	description: 'Show the last 30 lines of bot logs (owner only)'
+	description: 'Show the last 30 lines of bot logs (owner only)',
+	preconditions: ['BoundTextChannel']
 })
 export class EvaluateCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

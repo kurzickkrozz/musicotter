@@ -191,7 +191,16 @@ export class GuildMusicManager {
 
 	public stop(): void {
 		this.queue.clear();
-		this._player?.stop();
+		this._player?.stop(true);
+
+		try {
+			this._connection?.destroy();
+		} catch {
+			// Connection may already be destroyed
+		}
+
+		this.cleanup();
+		container.musicManagers.delete(this.guildId);
 	}
 
 	public async seek(seconds: number): Promise<boolean> {

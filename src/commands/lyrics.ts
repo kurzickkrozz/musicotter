@@ -30,13 +30,14 @@ export class LyricsCommand extends Command {
 			const current = manager?.queue.current;
 
 			if (!current) {
+				autoDelete(interaction);
 				return interaction.reply({ content: 'Nothing is playing and no song name was provided.', ephemeral: true });
 			}
 
 			query = current.title;
 		}
 
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		try {
 			const songs = await genius.songs.search(query);
@@ -86,6 +87,7 @@ export class LyricsCommand extends Command {
 				embed.setThumbnail(song.thumbnail);
 			}
 
+			autoDelete(interaction);
 			return interaction.editReply({ embeds: [embed] });
 		} catch (error) {
 			this.container.logger.error('Lyrics command error:', error);

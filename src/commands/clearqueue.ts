@@ -22,6 +22,7 @@ export class ClearQueueCommand extends Command {
 		const count = manager.queue.size;
 		manager.queue.clearUpcoming();
 
-		return interaction.reply(`Cleared **${count}** track${count === 1 ? '' : 's'} from the queue.`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Cleared **${count}** track${count === 1 ? '' : 's'} from the queue.`, ephemeral: true });
 	}
 }

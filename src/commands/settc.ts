@@ -1,5 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
+import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set the text channel for bot responses',
@@ -17,6 +18,7 @@ export class SetTCCommand extends Command {
 
 		manager.boundTextChannelId = interaction.channelId;
 
-		return interaction.reply(`Bot responses bound to <#${interaction.channelId}>.`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Bot responses bound to <#${interaction.channelId}>.`, ephemeral: true });
 	}
 }

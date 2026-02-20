@@ -4,7 +4,8 @@ import { EmbedBuilder } from 'discord.js';
 import { EMBED_COLOR, BOT_NAME, OWNER_ID } from '../lib/constants';
 
 @ApplyOptions<Command.Options>({
-	description: 'Show bot runtime debug information (owner only)'
+	description: 'Show bot runtime debug information (owner only)',
+	preconditions: ['BoundTextChannel']
 })
 export class DebugCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

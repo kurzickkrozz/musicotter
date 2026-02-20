@@ -20,6 +20,22 @@ const COOKIES_PATH = join(rootDir, 'cookies.txt');
 const hasCookies = existsSync(COOKIES_PATH);
 
 export class AudioSourceResolver {
+	private scInitialized = false;
+
+	/** Ensure SoundCloud client_id is set (required for search/API calls). */
+	private async ensureSoundCloud(): Promise<void> {
+		if (this.scInitialized) return;
+		try {
+			const clientId = await play.getFreeClientID();
+			await play.setToken({ soundcloud: { client_id: clientId } });
+			this.scInitialized = true;
+			container.logger.debug('[play-dl] SoundCloud client_id initialized');
+		} catch (err) {
+			container.logger.error(`[play-dl] Failed to initialize SoundCloud: ${err}`);
+			throw new Error('Failed to initialize SoundCloud. Please try again later.');
+		}
+	}
+
 	public async detectSource(input: string): Promise<AudioSource> {
 		// 1. Check YouTube via play-dl validator
 		const ytValidation = play.yt_validate(input);
@@ -39,6 +55,7 @@ export class AudioSourceResolver {
 		}
 
 		// 4. SoundCloud — only for actual SoundCloud URLs (track/playlist), NOT plain text
+		await this.ensureSoundCloud();
 		const soResult = await play.so_validate(input);
 		if (soResult === 'track' || soResult === 'playlist') {
 			return AudioSource.SoundCloud;
@@ -352,6 +369,7 @@ export class AudioSourceResolver {
 	}
 
 	private async resolveSoundCloud(input: string, requester: User): Promise<ResolveResult> {
+		await this.ensureSoundCloud();
 		const scType = await play.so_validate(input);
 
 		if (scType === 'playlist') {
@@ -382,6 +400,7 @@ export class AudioSourceResolver {
 
 	/** Search SoundCloud via play-dl. Returns up to `limit` results. */
 	public async searchSoundCloud(query: string, limit = 5): Promise<{ title: string; url: string; duration: number; thumbnail: string }[]> {
+		await this.ensureSoundCloud();
 		const results = await play.search(query, { source: { soundcloud: 'tracks' }, limit });
 
 		return results.map((r) => {

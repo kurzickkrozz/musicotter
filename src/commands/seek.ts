@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { formatDuration } from '../lib/utils';
+import { autoDelete, formatDuration } from '../lib/utils';
 
 /**
  * Parse a time string into total seconds.
@@ -63,16 +63,19 @@ export class SeekCommand extends Command {
 		const manager = this.container.musicManagers.get(interaction.guildId!);
 
 		if (!manager || !manager.queue.current) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'Nothing is currently playing.', ephemeral: true });
 		}
 
 		const currentTrack = manager.queue.current;
 
 		if (currentTrack.duration <= 0) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'Cannot seek in a live stream.', ephemeral: true });
 		}
 
 		if (!currentTrack.url.includes('youtube.com') && !currentTrack.url.includes('youtu.be')) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'Seeking is only supported for YouTube tracks.', ephemeral: true });
 		}
 
@@ -90,6 +93,7 @@ export class SeekCommand extends Command {
 
 		const parsedSeconds = parseTime(timeStr);
 		if (parsedSeconds === null) {
+			autoDelete(interaction);
 			return interaction.reply({
 				content: 'Invalid time format. Use `HH:MM:SS`, `MM:SS`, `SS`, `1h2m3s`, or a plain number of seconds.',
 				ephemeral: true
@@ -111,17 +115,19 @@ export class SeekCommand extends Command {
 		// Clamp to valid range
 		seekTo = Math.max(0, Math.min(seekTo, currentTrack.duration - 1));
 
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 
 		const success = await manager.seek(seekTo);
 
 		if (!success) {
+			autoDelete(interaction);
 			return interaction.editReply('Failed to seek. Please try again.');
 		}
 
 		const directionLabel =
 			direction === '+' ? `Seeked forward to` : direction === '-' ? `Seeked backward to` : `Seeked to`;
 
+		autoDelete(interaction);
 		return interaction.editReply(`${directionLabel} **${formatDuration(seekTo)}** / ${formatDuration(currentTrack.duration)}`);
 	}
 }

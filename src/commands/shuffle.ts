@@ -20,6 +20,7 @@ export class ShuffleCommand extends Command {
 		}
 
 		manager.queue.shuffle();
-		return interaction.reply(`Shuffled **${manager.queue.size}** tracks in the queue.`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Shuffled **${manager.queue.size}** tracks in the queue.`, ephemeral: true });
 	}
 }

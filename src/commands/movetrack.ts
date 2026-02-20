@@ -1,5 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
+import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Move a track from one queue position to another',
@@ -22,23 +23,28 @@ export class MoveTrackCommand extends Command {
 		const manager = this.container.musicManagers.get(interaction.guildId!);
 
 		if (!manager || manager.queue.size === 0) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'The queue is empty.', ephemeral: true });
 		}
 
 		if (from === to) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'The positions are the same.', ephemeral: true });
 		}
 
 		if (from > manager.queue.size || to > manager.queue.size) {
+			autoDelete(interaction);
 			return interaction.reply({ content: `Invalid position. The queue has **${manager.queue.size}** track${manager.queue.size === 1 ? '' : 's'}.`, ephemeral: true });
 		}
 
 		const track = manager.queue.move(from, to);
 
 		if (!track) {
+			autoDelete(interaction);
 			return interaction.reply({ content: 'Failed to move track. Check the positions and try again.', ephemeral: true });
 		}
 
-		return interaction.reply(`Moved **${track.title}** from position **#${from}** to **#${to}**.`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Moved **${track.title}** from position **#${from}** to **#${to}**.`, ephemeral: true });
 	}
 }

@@ -58,6 +58,7 @@ export class SCSearchCommand extends Command {
 				new ButtonBuilder().setCustomId(`scsearch_cancel:${interaction.user.id}`).setLabel('Cancel').setStyle(ButtonStyle.Danger)
 			);
 
+			autoDelete(interaction);
 			return interaction.editReply({ embeds: [embed], components: [selectRow, cancelRow] });
 		} catch (error) {
 			this.container.logger.error('SoundCloud search error:', error);

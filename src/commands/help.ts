@@ -6,7 +6,8 @@ import { EMBED_COLOR, BOT_NAME, rootDir } from '../lib/constants';
 import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
-	description: 'List all available commands'
+	description: 'List all available commands',
+	preconditions: ['BoundTextChannel']
 })
 export class HelpCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
@@ -43,7 +44,7 @@ export class HelpCommand extends Command {
 						'\u25B8 </skip:0> \u2014 Skip the current track',
 						'\u25B8 </seek:0> \u2014 Seek to a position in the current track',
 						'\u25B8 \u{1F512} </skipto:0> \u2014 Jump to a queue position',
-						'\u25B8 \u{1F512} </stop:0> \u2014 Stop playback and clear the queue',
+						'\u25B8 \u{1F512} </stop:0> \u2014 Stop playback, clear the queue, and disconnect',
 						'\u25B8 </radiostations:0> \u2014 Browse pre-configured radio stations'
 					].join('\n')
 				},
@@ -54,8 +55,8 @@ export class HelpCommand extends Command {
 				{
 					name: '\u{1F4CB} Queue',
 					value: [
-						'\u25B8 </queue:0> \u2014 View the current queue',
-						'\u25B8 </nowplaying:0> \u2014 Show the currently playing track',
+						'\u25B8 </queue:0> \u2014 View the current queue with pagination',
+						'\u25B8 </nowplaying:0> \u2014 Show the current track with progress bar',
 						'\u25B8 </loop:0> \u2014 Set loop mode (off / track / queue)',
 						'\u25B8 </shuffle:0> \u2014 Shuffle the upcoming queue',
 						'\u25B8 \u{1F512} </clearqueue:0> \u2014 Clear all upcoming tracks',
@@ -70,7 +71,7 @@ export class HelpCommand extends Command {
 					name: '\u2699\uFE0F Settings & Admin',
 					value: [
 						'\u25B8 \u{1F512} </volume:0> \u2014 View or set volume (0\u2013150)',
-						'\u25B8 \u{1F512} </setdj:0> \u2014 View or set the DJ role',
+						'\u25B8 \u{1F6E1}\uFE0F </setdj:0> \u2014 View or set the DJ role (Manage Server)',
 						'\u25B8 \u{1F512} </settc:0> \u2014 Bind bot messages to a text channel',
 						'\u25B8 \u{1F512} </setvc:0> \u2014 Restrict bot to a voice channel',
 						'\u25B8 \u{1F512} </forceremove:0> \u2014 Remove all tracks by a user'
@@ -83,9 +84,9 @@ export class HelpCommand extends Command {
 				{
 					name: '\u2139\uFE0F Info',
 					value: [
-						'\u25B8 </lyrics:0> \u2014 Show lyrics for a song (Genius)',
+						'\u25B8 </lyrics:0> \u2014 Show lyrics (defaults to current track)',
 						'\u25B8 </help:0> \u2014 Show this message',
-						'\u25B8 </about:0> \u2014 Bot information',
+						'\u25B8 </about:0> \u2014 Bot info, uptime & stats',
 						'\u25B8 </ping:0> \u2014 Check latency'
 					].join('\n')
 				},
@@ -98,7 +99,7 @@ export class HelpCommand extends Command {
 					value: [
 						'\u25B8 </debug:0> \u2014 Runtime & server debug info',
 						'\u25B8 </evaluate:0> \u2014 View recent bot logs',
-						'\u25B8 </invitelink:0> \u2014 Get the bot invite link'
+						'\u25B8 </invite:0> \u2014 Get the bot invite link'
 					].join('\n')
 				}
 			)

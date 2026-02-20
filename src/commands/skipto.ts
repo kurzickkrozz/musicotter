@@ -44,6 +44,7 @@ export class SkipToCommand extends Command {
 		// Stop current playback; the skipTo already called dequeue which set the new current
 		// We need to play the new track
 		await manager.playNext(track);
-		return interaction.reply(`Skipped to position **#${position}**: **${track.title}**`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Skipped to position **#${position}**: **${track.title}**`, ephemeral: true });
 	}
 }

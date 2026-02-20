@@ -51,6 +51,7 @@ export class LoopCommand extends Command {
 			[LoopMode.Queue]: 'Queue (looping entire queue)'
 		};
 
-		return interaction.reply(`Loop mode set to: **${modeNames[manager.queue.loopMode]}**`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Loop mode set to: **${modeNames[manager.queue.loopMode]}**`, ephemeral: true });
 	}
 }

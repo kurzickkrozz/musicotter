@@ -29,10 +29,12 @@ export class VolumeCommand extends Command {
 		const level = interaction.options.getInteger('level');
 
 		if (level === null) {
-			return interaction.reply(`Current volume: **${manager.volume}%**`);
+			autoDelete(interaction);
+			return interaction.reply({ content: `Current volume: **${manager.volume}%**`, ephemeral: true });
 		}
 
 		manager.setVolume(level);
-		return interaction.reply(`Volume set to: **${manager.volume}%**`);
+		autoDelete(interaction);
+		return interaction.reply({ content: `Volume set to: **${manager.volume}%**`, ephemeral: true });
 	}
 }
