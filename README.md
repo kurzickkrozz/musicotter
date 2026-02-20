@@ -2,7 +2,7 @@
   <img src="banner.png" alt="musicotter" width="512" />
 </p>
 
-<h1 align="center">musicotter</h1>
+<h1 align="center">MusicOtter</h1>
 
 <p align="center">
   <em>Floating along, listening to tunes. &mdash; Discord music bot built by TunnelRat (a.k.a. "Krozz").
