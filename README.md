@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="logo.png" alt="musicotter" width="180" />
+  <img src="banner.png" alt="musicotter" width="180" />
 </p>
 
 <h1 align="center">musicotter</h1>
 
 <p align="center">
-  <em>Your multi-source Discord music companion &mdash; built with TypeScript, Sapphire Framework, and yt-dlp.</em>
+  <em>Floating along, listening to tunes. &mdash; Discord music bot built by TunnelRat (a.k.a. "Krozz").
+  Bot was made with TypeScript, Sapphire Framework, and yt-dlp.</em>
 </p>
 
 <p align="center">
