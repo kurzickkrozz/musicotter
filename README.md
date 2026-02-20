@@ -5,8 +5,9 @@
 <h1 align="center">MusicOtter</h1>
 
 <p align="center">
-  <em>Floating along, listening to tunes. &mdash; Discord music bot built by TunnelRat (a.k.a. "Krozz").
-  Bot was made with TypeScript, Sapphire Framework, and yt-dlp.</em>
+  <em>Floating along, listening to tunes. &mdash; Discord music bot built by TunnelRat (a.k.a. "Krozz").</em>
+  <br />
+  <em>Bot was made with TypeScript, Sapphire Framework, and yt-dlp.</em>
 </p>
 
 <p align="center">
