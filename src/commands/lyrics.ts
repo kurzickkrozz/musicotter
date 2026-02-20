@@ -8,7 +8,8 @@ import { autoDelete } from '../lib/utils';
 const genius = new GeniusClient();
 
 @ApplyOptions<Command.Options>({
-	description: 'Show lyrics for a song (uses Genius)'
+	description: 'Show lyrics for a song (uses Genius)',
+	preconditions: ['BoundTextChannel']
 })
 export class LyricsCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

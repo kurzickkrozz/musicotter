@@ -3,7 +3,7 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	description: 'Move a track from one queue position to another',
-	preconditions: ['InVoiceChannel', 'DJOnly']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class MoveTrackCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

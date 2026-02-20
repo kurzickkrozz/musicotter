@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Resume the current track',
-	preconditions: ['InVoiceChannel']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel']
 })
 export class ResumeCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

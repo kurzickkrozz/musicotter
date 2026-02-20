@@ -5,6 +5,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set or show the DJ role',
+	preconditions: ['BoundTextChannel'],
 	requiredUserPermissions: [PermissionFlagsBits.ManageGuild]
 })
 export class SetDJCommand extends Command {

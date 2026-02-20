@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Shuffle the queue',
-	preconditions: ['InVoiceChannel']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel']
 })
 export class ShuffleCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

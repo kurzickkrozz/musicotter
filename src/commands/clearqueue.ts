@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Clear all tracks from the queue',
-	preconditions: ['InVoiceChannel', 'DJOnly']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class ClearQueueCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

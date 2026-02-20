@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Stop playback and clear the queue',
-	preconditions: ['InVoiceChannel', 'DJOnly']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class StopCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

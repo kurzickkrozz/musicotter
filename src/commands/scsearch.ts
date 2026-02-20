@@ -6,7 +6,7 @@ import { autoDelete, formatDuration } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Search SoundCloud and choose a result to play',
-	preconditions: ['InVoiceChannel']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel']
 })
 export class SCSearchCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

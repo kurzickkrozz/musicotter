@@ -4,7 +4,8 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { autoDelete, createQueueEmbed } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
-	description: 'Show the current queue'
+	description: 'Show the current queue',
+	preconditions: ['BoundTextChannel']
 })
 export class QueueCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

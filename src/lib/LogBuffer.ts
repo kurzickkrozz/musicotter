@@ -32,11 +32,17 @@ export class LogBuffer {
 	}
 
 	private push(text: string): void {
-		const lines = text.split('\n').filter((l) => l.length > 0);
-		for (const line of lines) {
-			this._lines.push(line);
-			if (this._lines.length > this._maxLines) {
-				this._lines.shift();
+		// Split on newlines first, then also on timestamp boundaries
+		// (handles cases where multiple log entries arrive in a single write)
+		const rawLines = text.split('\n').filter((l) => l.length > 0);
+		for (const raw of rawLines) {
+			// Split on timestamp boundaries: "2026-02-20 03:47:55"
+			const entries = raw.split(/(?=\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/).filter((l) => l.length > 0);
+			for (const entry of entries) {
+				this._lines.push(entry.trimEnd());
+				if (this._lines.length > this._maxLines) {
+					this._lines.shift();
+				}
 			}
 		}
 	}

@@ -3,7 +3,8 @@ import { Command } from '@sapphire/framework';
 import { autoDelete, createNowPlayingEmbed } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
-	description: 'Show the currently playing track'
+	description: 'Show the currently playing track',
+	preconditions: ['BoundTextChannel']
 })
 export class NowPlayingCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

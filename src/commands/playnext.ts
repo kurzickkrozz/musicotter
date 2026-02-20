@@ -3,7 +3,7 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	description: 'Add a song to the front of the queue',
-	preconditions: ['InVoiceChannel']
+	preconditions: ['BoundTextChannel', 'InVoiceChannel']
 })
 export class PlayNextCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

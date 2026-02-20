@@ -3,7 +3,7 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set the text channel for bot responses',
-	preconditions: ['DJOnly']
+	preconditions: ['BoundTextChannel', 'DJOnly']
 })
 export class SetTCCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
