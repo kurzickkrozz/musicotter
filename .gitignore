@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript incremental
+*.tsbuildinfo
+
+# ytdl-core debug dumps
+*-player-script.js
+
+# YouTube cookies (contains sensitive session data)
+cookies.txt
+
+# Reference projects
+._reference1/
+._reference2/
+
+# Claude Code
+.claude/
