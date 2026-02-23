@@ -16,8 +16,21 @@ const ffmpegPath: string = require('ffmpeg-static');
 const YOUTUBE_VIDEO_ID_REGEX = /(?:(?:music\.)?youtube\.com\/(?:watch\?.*v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 const YOUTUBE_PLAYLIST_REGEX = /(?:(?:music\.)?youtube\.com\/(?:playlist\?|watch\?.*&?)list=)([a-zA-Z0-9_-]+)/;
 
+/** Path to optional cookies.txt for age-restricted YouTube content */
 const COOKIES_PATH = join(rootDir, 'cookies.txt');
 const hasCookies = existsSync(COOKIES_PATH);
+
+if (hasCookies) {
+	console.log('[yt-dlp] cookies.txt detected — age-restricted YouTube content enabled');
+} else {
+	console.log('[yt-dlp] No cookies.txt found — age-restricted YouTube content will be skipped');
+}
+
+/** Shared yt-dlp options: Node.js runtime + optional cookies for age-restricted content */
+const YT_DLP_BASE = {
+	jsRuntimes: 'node',
+	...(hasCookies ? { cookies: COOKIES_PATH } : {})
+} as const;
 
 export class AudioSourceResolver {
 	private scInitialized = false;
@@ -73,7 +86,7 @@ export class AudioSourceResolver {
 			noCheckCertificates: true,
 			skipDownload: true,
 			flatPlaylist: true,
-			...(hasCookies ? { cookies: COOKIES_PATH } : {})
+			...YT_DLP_BASE
 		})) as { entries?: { id?: string; title?: string; duration?: number; thumbnail?: string; thumbnails?: { url: string }[] }[] };
 
 		if (!info.entries || info.entries.length === 0) return [];
@@ -111,7 +124,7 @@ export class AudioSourceResolver {
 			const proc = youtubeDl.exec(url, {
 				format: 'bestaudio',
 				output: '-',
-				...(hasCookies ? { cookies: COOKIES_PATH } : {})
+				...YT_DLP_BASE
 			});
 
 			// youtube-dl-exec (via tinyspawn) makes the ChildProcess also a Promise.
@@ -193,7 +206,7 @@ export class AudioSourceResolver {
 			format: 'bestaudio',
 			noWarnings: true,
 			noCheckCertificates: true,
-			...(hasCookies ? { cookies: COOKIES_PATH } : {})
+			...YT_DLP_BASE
 		})) as unknown as string;
 
 		const directUrl = String(info).trim();
@@ -279,7 +292,7 @@ export class AudioSourceResolver {
 			noWarnings: true,
 			noCheckCertificates: true,
 			skipDownload: true,
-			...(hasCookies ? { cookies: COOKIES_PATH } : {})
+			...YT_DLP_BASE
 		})) as { title?: string; id?: string; duration?: number; thumbnail?: string };
 
 		const videoUrl = info.id ? `https://www.youtube.com/watch?v=${info.id}` : cleanUrl;
@@ -304,7 +317,7 @@ export class AudioSourceResolver {
 			noCheckCertificates: true,
 			skipDownload: true,
 			flatPlaylist: true,
-			...(hasCookies ? { cookies: COOKIES_PATH } : {})
+			...YT_DLP_BASE
 		})) as {
 			title?: string;
 			entries?: { id?: string; title?: string; duration?: number; thumbnail?: string; thumbnails?: { url: string }[] }[];

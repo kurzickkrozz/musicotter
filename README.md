@@ -217,7 +217,22 @@ Verify: `yt-dlp --version`
 
 ### Optional: YouTube Cookies
 
-If you need to play age-restricted or region-locked YouTube content, place a `cookies.txt` file (Netscape format) in the project root. The bot will automatically detect and use it with yt-dlp.
+Most YouTube music is **not** age-restricted and works without any authentication. For age-restricted or region-locked content, you can provide a `cookies.txt` file:
+
+1. Install a browser extension like **"Get cookies.txt LOCALLY"**
+2. Log into YouTube in your browser
+3. Export the cookies as `cookies.txt` (Netscape format)
+4. Place the file in the project root (or volume-mount it in Docker)
+
+The bot detects `cookies.txt` at startup and automatically passes it to yt-dlp. Without it, age-restricted tracks are skipped gracefully.
+
+**Docker / Unraid:** Mount your cookies file into the container:
+```yaml
+volumes:
+  - /path/to/your/cookies.txt:/app/cookies.txt:ro
+```
+
+> **Note:** YouTube cookies expire after a few months. When they do, re-export from your browser and replace the file. The bot will continue working for non-age-restricted content regardless.
 
 ---
 
@@ -425,9 +440,12 @@ musicotter/
 <details>
 <summary><strong>Age-restricted YouTube videos not playing</strong></summary>
 
-- Place a `cookies.txt` file (Netscape format) in the project root
-- Export cookies from a browser where you are logged into YouTube
-- The bot will automatically pass them to yt-dlp
+- Export cookies from a browser logged into YouTube using a "Get cookies.txt" extension
+- Place the `cookies.txt` file (Netscape format) in the project root
+- For Docker: volume-mount it as `/app/cookies.txt:ro`
+- The bot logs whether cookies were detected at startup
+- Cookies expire after a few months — re-export when needed
+- Without cookies, age-restricted tracks are skipped and the bot moves to the next song
 
 </details>
 
