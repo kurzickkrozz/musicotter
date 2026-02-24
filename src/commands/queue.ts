@@ -15,6 +15,12 @@ export class QueueCommand extends Command {
 				.setDescription('Show the current queue')
 				.addIntegerOption((option) => option.setName('page').setDescription('Page number').setRequired(false).setMinValue(1))
 		);
+		registry.registerChatInputCommand((builder) =>
+			builder
+				.setName('q')
+				.setDescription('Show the current queue (alias for /queue)')
+				.addIntegerOption((option) => option.setName('page').setDescription('Page number').setRequired(false).setMinValue(1))
+		);
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
