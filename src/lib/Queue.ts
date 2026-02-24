@@ -88,6 +88,13 @@ export class Queue {
 		return this.dequeue();
 	}
 
+	/** Remove a track at a 1-based position. Returns the removed track or null. */
+	public remove(position: number): Track | null {
+		const index = position - 1;
+		if (index < 0 || index >= this._tracks.length) return null;
+		return this._tracks.splice(index, 1)[0];
+	}
+
 	/** Move a track from one position to another. Positions are 1-based. */
 	public move(from: number, to: number): Track | null {
 		const fromIndex = from - 1;

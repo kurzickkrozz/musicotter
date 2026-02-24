@@ -6,7 +6,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Show information about the bot',
-	preconditions: ['BoundTextChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel']
 })
 export class AboutCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

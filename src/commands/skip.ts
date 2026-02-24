@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Skip the current track',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel']
 })
 export class SkipCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

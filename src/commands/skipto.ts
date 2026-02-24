@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Skip to a specific position in the queue',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class SkipToCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

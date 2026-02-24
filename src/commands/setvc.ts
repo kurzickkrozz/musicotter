@@ -5,7 +5,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set or clear the voice channel the bot is allowed to join',
-	preconditions: ['BoundTextChannel', 'DJOnly']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'DJOnly']
 })
 export class SetVCCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

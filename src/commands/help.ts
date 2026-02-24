@@ -7,7 +7,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'List all available commands',
-	preconditions: ['BoundTextChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel']
 })
 export class HelpCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
@@ -42,6 +42,7 @@ export class HelpCommand extends Command {
 						'\u25B8 </pause:0> \u2014 Pause the current track',
 						'\u25B8 </resume:0> \u2014 Resume playback',
 						'\u25B8 </skip:0> \u2014 Skip the current track',
+						'\u25B8 </replay:0> \u2014 Replay the current track from the beginning',
 						'\u25B8 </seek:0> \u2014 Seek to a position in the current track',
 						'\u25B8 \u{1F512} </skipto:0> \u2014 Jump to a queue position',
 						'\u25B8 \u{1F512} </stop:0> \u2014 Stop playback, clear the queue, and disconnect',
@@ -59,6 +60,8 @@ export class HelpCommand extends Command {
 						'\u25B8 </nowplaying:0> \u2014 Show the current track with progress bar',
 						'\u25B8 </loop:0> \u2014 Set loop mode (off / track / queue)',
 						'\u25B8 </shuffle:0> \u2014 Shuffle the upcoming queue',
+						'\u25B8 </remove:0> \u2014 Remove a track by queue position',
+						'\u25B8 </history:0> \u2014 View recently played tracks',
 						'\u25B8 \u{1F512} </clearqueue:0> \u2014 Clear all upcoming tracks',
 						'\u25B8 \u{1F512} </movetrack:0> \u2014 Move a track to a different position'
 					].join('\n')
@@ -74,7 +77,8 @@ export class HelpCommand extends Command {
 						'\u25B8 \u{1F6E1}\uFE0F </setdj:0> \u2014 View or set the DJ role (Manage Server)',
 						'\u25B8 \u{1F512} </settc:0> \u2014 Bind bot messages to a text channel',
 						'\u25B8 \u{1F512} </setvc:0> \u2014 Restrict bot to a voice channel',
-						'\u25B8 \u{1F512} </forceremove:0> \u2014 Remove all tracks by a user'
+						'\u25B8 \u{1F512} </forceremove:0> \u2014 Remove all tracks by a user',
+						'\u25B8 \u{1F512} </blacklist:0> \u2014 Add, remove, or list blacklisted users'
 					].join('\n')
 				},
 				{

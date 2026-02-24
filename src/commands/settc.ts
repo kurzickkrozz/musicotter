@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set the text channel for bot responses',
-	preconditions: ['BoundTextChannel', 'DJOnly']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'DJOnly']
 })
 export class SetTCCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

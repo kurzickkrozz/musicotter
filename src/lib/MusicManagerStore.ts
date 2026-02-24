@@ -4,6 +4,7 @@ import { GuildMusicManager } from './GuildMusicManager';
 
 export class MusicManagerStore {
 	private readonly _managers = new Map<Snowflake, GuildMusicManager>();
+	private readonly _blacklists = new Map<Snowflake, Set<Snowflake>>();
 	private _totalTracksPlayed = 0;
 	private _totalPlayTimeSeconds = 0;
 	private readonly _uniqueUsers = new Set<string>();
@@ -63,6 +64,31 @@ export class MusicManagerStore {
 
 	public get totalUniqueUsers(): number {
 		return this._uniqueUsers.size;
+	}
+
+	public isBlacklisted(guildId: Snowflake, userId: Snowflake): boolean {
+		return this._blacklists.get(guildId)?.has(userId) ?? false;
+	}
+
+	public addToBlacklist(guildId: Snowflake, userId: Snowflake): boolean {
+		let set = this._blacklists.get(guildId);
+		if (!set) {
+			set = new Set();
+			this._blacklists.set(guildId, set);
+		}
+		if (set.has(userId)) return false;
+		set.add(userId);
+		return true;
+	}
+
+	public removeFromBlacklist(guildId: Snowflake, userId: Snowflake): boolean {
+		const set = this._blacklists.get(guildId);
+		if (!set) return false;
+		return set.delete(userId);
+	}
+
+	public getBlacklist(guildId: Snowflake): ReadonlySet<Snowflake> {
+		return this._blacklists.get(guildId) ?? new Set();
 	}
 
 	/** Update the bot's presence to reflect the currently playing track (if any). */

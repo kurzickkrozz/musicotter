@@ -9,7 +9,7 @@ const genius = new GeniusClient();
 
 @ApplyOptions<Command.Options>({
 	description: 'Show lyrics for a song (uses Genius)',
-	preconditions: ['BoundTextChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel']
 })
 export class LyricsCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

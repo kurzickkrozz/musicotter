@@ -41,7 +41,7 @@ function parseTime(input: string): number | null {
 
 @ApplyOptions<Command.Options>({
 	description: 'Seek to a position in the current track',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel']
 })
 export class SeekCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Add a song to the front of the queue',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel']
 })
 export class PlayNextCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

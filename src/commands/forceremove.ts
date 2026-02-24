@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Remove all tracks by a specific user from the queue',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class ForceRemoveCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

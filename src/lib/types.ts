@@ -22,4 +22,9 @@ export interface Track {
 	readonly source: AudioSource;
 }
 
+export interface HistoryEntry {
+	readonly track: Track;
+	readonly playedAt: number;
+}
+
 export type ResolveResult = { type: 'track'; track: Track } | { type: 'playlist'; tracks: Track[]; playlistTitle: string };

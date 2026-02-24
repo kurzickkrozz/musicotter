@@ -4,7 +4,7 @@ import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Set or show the current volume',
-	preconditions: ['BoundTextChannel', 'InVoiceChannel', 'DJOnly']
+	preconditions: ['Blacklisted', 'BoundTextChannel', 'InVoiceChannel', 'DJOnly']
 })
 export class VolumeCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

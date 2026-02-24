@@ -4,7 +4,7 @@ import { autoDelete, createNowPlayingEmbed } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
 	description: 'Show the currently playing track',
-	preconditions: ['BoundTextChannel']
+	preconditions: ['Blacklisted', 'BoundTextChannel']
 })
 export class NowPlayingCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

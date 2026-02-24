@@ -2,7 +2,7 @@ import { EmbedBuilder, type CommandInteraction } from 'discord.js';
 import { container, type ChatInputCommandSuccessPayload } from '@sapphire/framework';
 import { cyan } from 'colorette';
 import { EMBED_COLOR } from './constants';
-import { LoopMode, type Track } from './types';
+import { LoopMode, type Track, type HistoryEntry } from './types';
 
 export function formatDuration(seconds: number): string {
 	if (seconds <= 0) return 'LIVE';
@@ -76,6 +76,46 @@ export function createQueueEmbed(
 		.setTitle(`Queue - ${tracks.length} track${tracks.length === 1 ? '' : 's'}`)
 		.setDescription(description)
 		.setFooter({ text: `Page ${safePage}/${totalPages} | Loop: ${loopStr} | Volume: ${volume}%` });
+}
+
+export function createHistoryEmbed(history: readonly HistoryEntry[], page: number): EmbedBuilder {
+	const TRACKS_PER_PAGE = 10;
+	const totalPages = Math.max(1, Math.ceil(history.length / TRACKS_PER_PAGE));
+	const safePage = Math.max(1, Math.min(page, totalPages));
+
+	const start = (safePage - 1) * TRACKS_PER_PAGE;
+	const end = start + TRACKS_PER_PAGE;
+	const pageEntries = history.slice(start, end);
+
+	let description = '';
+
+	if (pageEntries.length > 0) {
+		description = pageEntries
+			.map((entry, i) => {
+				const ago = formatTimeAgo(entry.playedAt);
+				return `\`${start + i + 1}.\` [${entry.track.title}](${entry.track.url}) | \`${formatDuration(entry.track.duration)}\` | ${ago} | <@${entry.track.requester.id}>`;
+			})
+			.join('\n');
+	} else {
+		description = 'No tracks have been played yet.';
+	}
+
+	return new EmbedBuilder()
+		.setColor(EMBED_COLOR)
+		.setTitle(`History - ${history.length} track${history.length === 1 ? '' : 's'}`)
+		.setDescription(description)
+		.setFooter({ text: `Page ${safePage}/${totalPages} | Most recent first` });
+}
+
+function formatTimeAgo(timestamp: number): string {
+	const seconds = Math.floor((Date.now() - timestamp) / 1000);
+	if (seconds < 60) return 'just now';
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${minutes}m ago`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours}h ago`;
+	const days = Math.floor(hours / 24);
+	return `${days}d ago`;
 }
 
 /**

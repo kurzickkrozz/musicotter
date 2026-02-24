@@ -13,7 +13,7 @@ import {
 import type { VoiceBasedChannel, TextChannel, Snowflake } from 'discord.js';
 import { container } from '@sapphire/framework';
 import { Queue } from './Queue';
-import type { Track } from './types';
+import type { Track, HistoryEntry } from './types';
 import { AudioSourceResolver } from './AudioSourceResolver';
 import { createNowPlayingEmbed } from './utils';
 
@@ -31,8 +31,10 @@ export class GuildMusicManager {
 	private _djRoleId: Snowflake | null = null;
 	private _playStartedAt = 0;
 	private _idleTimeout: ReturnType<typeof setTimeout> | null = null;
+	private _history: HistoryEntry[] = [];
 
 	private static readonly IDLE_TIMEOUT_MS = 10 * 1000;
+	private static readonly MAX_HISTORY = 1000;
 
 	public constructor(guildId: Snowflake) {
 		this.guildId = guildId;
@@ -82,6 +84,10 @@ export class GuildMusicManager {
 
 	public get playStartedAt(): number {
 		return this._playStartedAt;
+	}
+
+	public get history(): readonly HistoryEntry[] {
+		return this._history;
 	}
 
 	public get isPlaying(): boolean {
@@ -157,6 +163,11 @@ export class GuildMusicManager {
 
 			if (specificTrack) {
 				this.queue.setCurrent(track);
+			}
+
+			this._history.unshift({ track, playedAt: Date.now() });
+			if (this._history.length > GuildMusicManager.MAX_HISTORY) {
+				this._history.length = GuildMusicManager.MAX_HISTORY;
 			}
 
 			container.musicManagers.recordTrackPlayed(track.duration);
