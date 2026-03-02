@@ -5,8 +5,9 @@ export const srcDir = join(rootDir, 'src');
 
 export const EMBED_COLOR = 0x8b5e3c;
 export const BOT_NAME = 'musicotter';
-export const BOT_VERSION = '1.0.0';
+// Single source of truth — reads from package.json
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+export const BOT_VERSION: string = require('../../package.json').version;
 export const BOT_OWNER = 'TunnelRat';
 export const OWNER_ID = '118895880509194243';
 export const PREFIX = '/';
-export const ALT_PREFIX = '!';

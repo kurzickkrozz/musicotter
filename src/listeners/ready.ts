@@ -2,6 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Listener } from '@sapphire/framework';
 import type { StoreRegistryValue } from '@sapphire/pieces';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
+import { BOT_VERSION } from '../lib/constants';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -9,10 +10,23 @@ const dev = process.env.NODE_ENV !== 'production';
 export class ReadyEvent extends Listener {
 	private readonly style = dev ? yellow : blue;
 
-	public override run() {
+	public override async run() {
 		this.printBanner();
 		this.printStoreDebugInformation();
 		this.container.musicManagers.updatePresence();
+
+		// In production (no DEV_GUILD_ID), clear any stale guild-specific command
+		// registrations left over from development to prevent duplicate listings.
+		if (!process.env.DEV_GUILD_ID) {
+			const { client, logger } = this.container;
+			for (const guild of client.guilds.cache.values()) {
+				const guildCommands = await guild.commands.fetch();
+				if (guildCommands.size > 0) {
+					await guild.commands.set([]);
+					logger.info(`Cleared ${guildCommands.size} stale guild commands from ${guild.name}`);
+				}
+			}
+		}
 	}
 
 	private printBanner() {
@@ -25,7 +39,7 @@ export class ReadyEvent extends Listener {
 
 		console.log(
 			String.raw`
-${line01} ${pad}${blc('1.0.0')}
+${line01} ${pad}${blc(BOT_VERSION)}
 ${pad}${pad}[${success}] Gateway Connected
 ${dev ? `${pad}${pad}${blc('<')}${llc('/')}${blc('>')} ${llc('DEVELOPMENT MODE')}` : ''}
 		`.trim()

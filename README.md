@@ -37,14 +37,16 @@
 | :link: | **Channel Binding** | Bind the bot to a specific text channel (`/settc`) or voice channel (`/setvc`) |
 | :microphone: | **Lyrics** | Fetch song lyrics from Genius, defaults to the currently playing track |
 | :radio: | **Radio Stations** | Pre-configured playlist stations you can browse and play instantly |
-| :zap: | **29 Slash Commands** | Every command registered as a Discord slash command |
+| :bust_in_silhouette: | **User Blacklist** | DJ roles can blacklist users from using bot commands per-server |
+| :scroll: | **Play History** | Recall the last 1,000 tracks played per server |
+| :zap: | **33 Slash Commands** | Every command registered as a Discord slash command |
 
 ---
 
 ## Commands
 
 <details>
-<summary><strong>:musical_note: Playback</strong> (11 commands)</summary>
+<summary><strong>:musical_note: Playback</strong> (12 commands)</summary>
 
 | Command | Description |
 |---------|-------------|
@@ -57,18 +59,21 @@
 | `/skip` | Skip the current track |
 | `/seek <time>` | Seek to a position in the current track (`+`, `-`, or absolute) |
 | `/skipto <position>` | Jump to a specific queue position :lock: |
+| `/replay` | Restart the current track from the beginning |
 | `/stop` | Stop playback, clear the queue, and disconnect :lock: |
 | `/radiostations` | Browse and play pre-configured radio stations |
 
 </details>
 
 <details>
-<summary><strong>:clipboard: Queue</strong> (6 commands)</summary>
+<summary><strong>:clipboard: Queue</strong> (8 commands)</summary>
 
 | Command | Description |
 |---------|-------------|
-| `/queue` | View the current queue with pagination |
+| `/queue` (or `/q`) | View the current queue with pagination |
 | `/nowplaying` | Show the currently playing track with progress bar |
+| `/history [page]` | View the last 1,000 tracks played in this server |
+| `/remove <position>` | Remove a specific track from the queue by position |
 | `/loop [mode]` | Cycle or set loop mode (off / track / queue) |
 | `/shuffle` | Shuffle the upcoming queue |
 | `/clearqueue` | Clear all upcoming tracks :lock: |
@@ -77,7 +82,7 @@
 </details>
 
 <details>
-<summary><strong>:gear: Settings & Admin</strong> (5 commands)</summary>
+<summary><strong>:gear: Settings & Admin</strong> (6 commands)</summary>
 
 | Command | Description | Requires |
 |---------|-------------|----------|
@@ -86,6 +91,7 @@
 | `/settc` | Bind now-playing messages to the current channel | :lock: DJ |
 | `/setvc [channel]` | Restrict the bot to a voice channel (omit to clear) | :lock: DJ |
 | `/forceremove <user>` | Remove all tracks queued by a user | :lock: DJ |
+| `/blacklist <add\|remove\|list>` | Blacklist a user from using bot commands | :lock: DJ |
 
 </details>
 
@@ -157,9 +163,7 @@ When inviting the bot to your server, ensure it has:
 
 ### Required Gateway Intents
 
-Enable in the Discord Developer Portal under **Bot > Privileged Gateway Intents**:
-
-- **Message Content Intent**
+No privileged gateway intents are required. The bot uses only standard intents (Guilds, Guild Voice States).
 
 ---
 
@@ -313,6 +317,8 @@ Each server gets its own `GuildMusicManager` instance with independent:
 - Volume setting
 - DJ role configuration
 - Bound text and voice channels
+- Track history (last 1,000 played)
+- User blacklist
 
 ---
 
@@ -322,18 +328,19 @@ Each server gets its own `GuildMusicManager` instance with independent:
 musicotter/
 ├── src/
 │   ├── index.ts                        # Entry point
-│   ├── commands/                        # All 29 slash commands
+│   ├── commands/                        # All 33 slash commands
 │   │   ├── play.ts          playnext.ts       search.ts        scsearch.ts
 │   │   ├── pause.ts         resume.ts         skip.ts          seek.ts
-│   │   ├── skipto.ts        stop.ts           queue.ts
-│   │   ├── clearqueue.ts    nowplaying.ts     loop.ts
-│   │   ├── shuffle.ts       volume.ts         forceremove.ts
-│   │   ├── settc.ts         setvc.ts          setdj.ts
+│   │   ├── skipto.ts        stop.ts           replay.ts        queue.ts
+│   │   ├── clearqueue.ts    nowplaying.ts     loop.ts          history.ts
+│   │   ├── shuffle.ts       volume.ts         forceremove.ts   remove.ts
+│   │   ├── settc.ts         setvc.ts          setdj.ts         blacklist.ts
 │   │   ├── help.ts          about.ts          ping.ts          lyrics.ts
 │   │   ├── debug.ts         evaluate.ts       movetrack.ts     invite.ts
 │   │   └── radiostations.ts
 │   ├── interaction-handlers/
 │   │   ├── queuePagination.ts          # Prev/next buttons for /queue
+│   │   ├── historyPagination.ts        # Prev/next buttons for /history
 │   │   ├── searchSelection.ts          # YouTube search result buttons
 │   │   ├── scSearchSelection.ts       # SoundCloud search result buttons
 │   │   └── stationSelection.ts        # Radio station selection buttons
@@ -355,6 +362,7 @@ musicotter/
 │   │       ├── chatInputCommandDenied.ts  # Ephemeral precondition errors
 │   │       └── chatInputCommandSuccess.ts # Command usage logging
 │   └── preconditions/
+│       ├── Blacklisted.ts              # Block blacklisted users (admins bypass)
 │       ├── BoundTextChannel.ts        # Enforce text channel binding
 │       ├── InVoiceChannel.ts           # User must be in a voice channel
 │       └── DJOnly.ts                   # DJ role or Manage Server required

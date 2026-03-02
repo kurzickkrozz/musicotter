@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, version as sapphireVersion } from '@sapphire/framework';
 import { EmbedBuilder, version as djsVersion } from 'discord.js';
-import { EMBED_COLOR, BOT_NAME, BOT_VERSION, BOT_OWNER, PREFIX, ALT_PREFIX } from '../lib/constants';
+import { EMBED_COLOR, BOT_NAME, BOT_VERSION, BOT_OWNER, PREFIX } from '../lib/constants';
 import { autoDelete } from '../lib/utils';
 
 @ApplyOptions<Command.Options>({
@@ -26,8 +26,6 @@ export class AboutCommand extends Command {
 				{ name: 'Owner', value: BOT_OWNER, inline: true },
 				{ name: '\u200B', value: '\u200B', inline: true },
 				{ name: 'Prefix', value: `\`${PREFIX}\``, inline: true },
-				{ name: 'Alt Prefix', value: `\`${ALT_PREFIX}\``, inline: true },
-				{ name: '\u200B', value: '\u200B', inline: true },
 				{ name: 'Servers', value: `${client.guilds.cache.size}`, inline: true },
 				{ name: 'Uptime', value: uptime, inline: true },
 				{ name: 'Latency', value: `${client.ws.ping}ms`, inline: true },
