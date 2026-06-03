@@ -14,7 +14,8 @@
   <a href="https://discord.js.org/"><img src="https://img.shields.io/badge/discord.js-v14-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.js v14" /></a>
   <a href="https://www.sapphirejs.dev/"><img src="https://img.shields.io/badge/Sapphire-v5-FF4785?style=for-the-badge" alt="Sapphire Framework" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" /></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" /></a>
+  <a href="https://docs.docker.com/compose/"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" /></a>
   <a href="https://unlicense.org/"><img src="https://img.shields.io/badge/license-Unlicense-blue?style=for-the-badge" alt="License" /></a>
 </p>
 
@@ -124,30 +125,31 @@
 
 ## Quick Start
 
+musicotter is designed to run **exclusively in Docker** — the image bundles everything it needs (Node 22, Python, FFmpeg, and an auto-updating yt-dlp).
+
 ```bash
-# 1. Clone & install
+# 1. Clone
 git clone https://github.com/kurzickkrozz/musicotter.git
 cd musicotter
-npm install
 
 # 2. Configure
 cp .env.example .env
 # Edit .env and add your DISCORD_TOKEN
 
 # 3. Build & run
-npm run build
-npm start
+docker compose up --build -d
 ```
 
-> **Prerequisite:** [yt-dlp](https://github.com/yt-dlp/yt-dlp) must be installed and in your PATH. See [installation details](#install-yt-dlp) below.
+> **Prerequisite:** [Docker](https://docs.docker.com/get-docker/) with Compose v2. You do **not** need Node.js, Python, or yt-dlp installed on the host — they live inside the container.
 
 ---
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed and available in your system PATH
+- [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose`)
 - A [Discord bot application](https://discord.com/developers/applications) with a bot token
+
+> Node.js 22, Python, FFmpeg, and yt-dlp are all provided inside the container image — nothing else needs to be installed on the host.
 
 ### Required Discord Bot Permissions
 
@@ -185,39 +187,21 @@ DEV_GUILD_ID=
 NODE_ENV=production
 ```
 
-### Install yt-dlp
+### yt-dlp (bundled & auto-updating)
 
-musicotter uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube audio streaming, search, and metadata.
+musicotter uses [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube audio streaming, search, and metadata. **You don't install it yourself** — the Docker image manages it for you:
 
-<details>
-<summary><strong>Windows</strong></summary>
+- **Installed via pip** inside the image as `yt-dlp[default]`, which includes the [EJS](https://github.com/yt-dlp/yt-dlp/wiki/EJS) JavaScript-challenge solver scripts required to solve YouTube's `n` and signature challenges.
+- **Runs on Node 22**, the minimum the EJS `node` runtime requires (`jsRuntimes: 'node'`).
+- **Auto-updates on every container start.** The entrypoint runs `pip install -U "yt-dlp[default]"` before launching the bot, so YouTube player changes are picked up with a simple restart — no rebuild needed:
 
-```bash
-winget install yt-dlp
-```
+  ```bash
+  docker compose restart
+  ```
 
-</details>
+  If PyPI is unreachable at boot, the bot falls back to the version baked into the image rather than failing to start.
 
-<details>
-<summary><strong>macOS</strong></summary>
-
-```bash
-brew install yt-dlp
-```
-
-</details>
-
-<details>
-<summary><strong>Linux</strong></summary>
-
-```bash
-sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
-sudo chmod a+rx /usr/local/bin/yt-dlp
-```
-
-</details>
-
-Verify: `yt-dlp --version`
+> **Why this matters:** YouTube changes its player every few months, which breaks stale yt-dlp versions with `Signature solving failed` / `Requested format is not available` errors. Keeping yt-dlp current (a restart) is the fix. See [Troubleshooting](#troubleshooting).
 
 ### Optional: YouTube Cookies
 
@@ -242,12 +226,20 @@ volumes:
 
 ## Development
 
+The bot is deployed exclusively via Docker. Common workflows:
+
+| Command | Description |
+|---------|-------------|
+| `docker compose up --build -d` | Build the image and start the bot detached |
+| `docker compose logs -f` | Follow the bot's logs |
+| `docker compose restart` | Restart (also pulls the latest yt-dlp) |
+| `docker compose down` | Stop and remove the container |
+
+The npm scripts below are run **inside** the image during the build (`npm run build`), and are available if you need to compile or format the TypeScript directly:
+
 | Script | Description |
 |--------|-------------|
 | `npm run build` | Compile TypeScript to JavaScript |
-| `npm start` | Start the bot |
-| `npm run dev` | Build and start in one command |
-| `npm run watch:start` | Watch for changes and auto-restart |
 | `npm run format` | Format source code with Prettier |
 
 > **Tip:** Set `DEV_GUILD_ID` in `.env` for instant slash command registration during development (global registration can take up to 1 hour).
@@ -366,6 +358,9 @@ musicotter/
 │       ├── BoundTextChannel.ts        # Enforce text channel binding
 │       ├── InVoiceChannel.ts           # User must be in a voice channel
 │       └── DJOnly.ts                   # DJ role or Manage Server required
+├── Dockerfile                          # Image: Node 22 + Python venv w/ yt-dlp[default]
+├── docker-compose.yml                  # Service definition (restart: unless-stopped)
+├── docker-entrypoint.sh                # Auto-updates yt-dlp on boot, then starts the bot
 ├── .env.example
 ├── .gitignore
 ├── .prettierignore
@@ -400,9 +395,24 @@ musicotter/
 <details>
 <summary><strong>Bot joins voice but no audio plays</strong></summary>
 
-- Ensure `yt-dlp` is installed and available in your system PATH
-- Run `yt-dlp --version` to verify
 - Check the bot has **Speak** and **Connect** permissions in the voice channel
+- Confirm yt-dlp resolved inside the container: `docker compose exec gw-party-bot yt-dlp --version`
+- If playback used to work and suddenly stopped (YouTube player change), see *"Playback broke after working for a while"* below
+
+</details>
+
+<details>
+<summary><strong>Playback broke after working for a while (signature / format errors)</strong></summary>
+
+Symptoms in the logs: `Signature solving failed`, `n challenge solving failed`, `no solutions`, or `Requested format is not available`.
+
+This means YouTube changed its player and the bundled yt-dlp is now stale. The fix is to pull the latest yt-dlp — which the container does on every start:
+
+```bash
+docker compose restart
+```
+
+The entrypoint runs `pip install -U "yt-dlp[default]"` on boot, so a restart refreshes both yt-dlp and its EJS challenge-solver scripts. No rebuild is required.
 
 </details>
 
@@ -456,6 +466,12 @@ musicotter/
 - Without cookies, age-restricted tracks are skipped and the bot moves to the next song
 
 </details>
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of notable changes.
 
 ---
 
