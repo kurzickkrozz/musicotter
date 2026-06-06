@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.9] - 2026-06-02
+
+### Added
+
+- **Startup warm-up of yt-dlp's challenge-solver cache.** On `ready`, the bot runs a
+  background, best-effort extraction that downloads YouTube's player JS and solves its
+  `n`/signature challenges before any user request — moving that one-time cold-solve cost
+  off the first `/play`.
+
+### Changed
+
+- **yt-dlp now uses a persistent cache directory on the mounted `/app/data` volume**
+  (`--cache-dir`). The solved player + nsig functions survive container rebuilds and
+  restarts, so the expensive JS-challenge solve happens once rather than on every
+  `docker compose up --build`. This is the primary fix for slow first-song loading.
+- **Plain-text `/play` searches no longer trigger a SoundCloud `client_id` scrape.**
+  Source detection only attempts SoundCloud validation for actual `soundcloud.com` URLs,
+  so text queries go straight to YouTube. SoundCloud and Spotify link handling is
+  unchanged (SoundCloud links still stream directly from SoundCloud).
+
 ## [1.4.8] - 2026-06-02
 
 ### Fixed
@@ -49,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline release prior to the Docker migration. See the
   [commit history](https://github.com/kurzickkrozz/musicotter/commits/master) for details.
 
-[Unreleased]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.8...HEAD
+[Unreleased]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.9...HEAD
+[1.4.9]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/kurzickkrozz/musicotter/releases/tag/v1.4.7

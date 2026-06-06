@@ -3,6 +3,7 @@ import { Listener } from '@sapphire/framework';
 import type { StoreRegistryValue } from '@sapphire/pieces';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
 import { BOT_VERSION } from '../lib/constants';
+import { AudioSourceResolver } from '../lib/AudioSourceResolver';
 
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -14,6 +15,11 @@ export class ReadyEvent extends Listener {
 		this.printBanner();
 		this.printStoreDebugInformation();
 		this.container.musicManagers.updatePresence();
+
+		// Prime yt-dlp's challenge-solver cache in the background so the first
+		// /play isn't slowed by the one-time player download + JS-challenge solve.
+		// Deliberately not awaited — it must never delay startup.
+		void AudioSourceResolver.warmUp();
 
 		// In production (no DEV_GUILD_ID), clear any stale guild-specific command
 		// registrations left over from development to prevent duplicate listings.

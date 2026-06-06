@@ -26,14 +26,56 @@ if (hasCookies) {
 	console.log('[yt-dlp] No cookies.txt found — age-restricted YouTube content will be skipped');
 }
 
-/** Shared yt-dlp options: Node.js runtime + optional cookies for age-restricted content */
+/**
+ * Persistent yt-dlp cache directory (resolved player JS + signature/nsig solutions).
+ * Lives on the mounted /app/data volume so the expensive JS-challenge solve survives
+ * container rebuilds. Without this, the default ~/.cache/yt-dlp is wiped on every
+ * `docker compose up --build`, and the next first song re-pays the full solve.
+ */
+const YT_DLP_CACHE_DIR = join(rootDir, 'data', 'yt-dlp-cache');
+
+/** Shared yt-dlp options: Node.js runtime + persistent cache + optional cookies for age-restricted content */
 const YT_DLP_BASE = {
 	jsRuntimes: 'node',
+	cacheDir: YT_DLP_CACHE_DIR,
 	...(hasCookies ? { cookies: COOKIES_PATH } : {})
 } as const;
 
 export class AudioSourceResolver {
 	private scInitialized = false;
+
+	/**
+	 * Prime yt-dlp's player + signature/nsig cache before the first user request.
+	 *
+	 * The first YouTube extraction after a (re)start must download YouTube's player
+	 * JS and solve its `n` + signature challenges via the EJS Node runtime — the
+	 * dominant share of first-song latency. Running one throwaway extraction at
+	 * startup moves that one-time cost off the user's first `/play`. Combined with
+	 * the persistent cache (YT_DLP_CACHE_DIR), it also covers the case where the
+	 * boot-time yt-dlp auto-update or a YouTube player rotation invalidated the
+	 * previously cached solver.
+	 *
+	 * Best-effort and non-blocking: any failure (offline, removed video, etc.) is
+	 * logged at debug level and otherwise ignored — it must never delay startup.
+	 */
+	public static async warmUp(): Promise<void> {
+		const startedAt = Date.now();
+		try {
+			// A full (non-flat) extraction forces format resolution, which is what
+			// actually triggers the challenge solve we want cached — a flat/search
+			// metadata pass would not.
+			await youtubeDl('ytsearch1:lofi', {
+				dumpSingleJson: true,
+				skipDownload: true,
+				noWarnings: true,
+				noCheckCertificates: true,
+				...YT_DLP_BASE
+			});
+			container.logger.debug(`[yt-dlp] Warm-up complete in ${Date.now() - startedAt}ms — challenge-solver cache primed`);
+		} catch (err) {
+			container.logger.debug(`[yt-dlp] Warm-up skipped (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+		}
+	}
 
 	/** Ensure SoundCloud client_id is set (required for search/API calls). */
 	private async ensureSoundCloud(): Promise<void> {
@@ -67,14 +109,18 @@ export class AudioSourceResolver {
 			return AudioSource.Spotify;
 		}
 
-		// 4. SoundCloud — only for actual SoundCloud URLs (track/playlist), NOT plain text
-		await this.ensureSoundCloud();
-		const soResult = await play.so_validate(input);
-		if (soResult === 'track' || soResult === 'playlist') {
-			return AudioSource.SoundCloud;
+		// 4. SoundCloud — only for actual SoundCloud URLs. Gating on the hostname
+		//    avoids a needless client_id scrape (a slow network round-trip) for
+		//    plain-text searches, which fall through to YouTube anyway.
+		if (input.includes('soundcloud.com')) {
+			await this.ensureSoundCloud();
+			const soResult = await play.so_validate(input);
+			if (soResult === 'track' || soResult === 'playlist') {
+				return AudioSource.SoundCloud;
+			}
 		}
 
-		// 5. Everything else: YouTube search
+		// 5. Everything else (incl. all plain-text queries): YouTube search
 		return AudioSource.Search;
 	}
 
