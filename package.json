@@ -1,6 +1,6 @@
 {
 	"name": "musicotter",
-	"version": "1.4.9",
+	"version": "1.4.10",
 	"main": "dist/index.js",
 	"author": "musicotter",
 	"license": "UNLICENSE",

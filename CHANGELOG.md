@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.10] - 2026-06-13
+
+### Fixed
+
+- **Docker build failing on `npm install` (Alpine).** `@discordjs/opus` and
+  `sodium-native` are native C++ addons; when no prebuilt binary exists for the current
+  Node ABI + Alpine musl version, node-gyp compiles them from source and failed with
+  `not found: make` because the image had no C/C++ toolchain. The build now installs
+  `build-base` as a temporary virtual package, compiles the native modules, then removes
+  it — keeping `libstdc++` so the compiled addons still load at runtime.
+
 ## [1.4.9] - 2026-06-02
 
 ### Added
@@ -69,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline release prior to the Docker migration. See the
   [commit history](https://github.com/kurzickkrozz/musicotter/commits/master) for details.
 
-[Unreleased]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.9...HEAD
+[Unreleased]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.10...HEAD
+[1.4.10]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/kurzickkrozz/musicotter/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/kurzickkrozz/musicotter/releases/tag/v1.4.7

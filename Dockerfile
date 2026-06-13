@@ -28,9 +28,19 @@ ENV PATH="/opt/venv/bin:$PATH" \
 	YOUTUBE_DL_FILENAME="yt-dlp" \
 	YOUTUBE_DL_SKIP_DOWNLOAD="true"
 
-# Install dependencies first (better layer caching)
+# Install dependencies first (better layer caching).
+#
+# @discordjs/opus and sodium-native are native C++ addons. When no prebuilt
+# binary exists for the current Node ABI + Alpine musl version, node-gyp compiles
+# them from source, which needs a C/C++ toolchain (make, gcc, g++). We install
+# build-base as a *virtual* package just for the build and remove it afterward to
+# keep the runtime image lean — but keep libstdc++, the C++ runtime the compiled
+# addons link against, so stripping the toolchain can't break them.
 COPY package*.json ./
-RUN npm install
+RUN apk add --no-cache libstdc++ \
+	&& apk add --no-cache --virtual .build-deps build-base \
+	&& npm install \
+	&& apk del .build-deps
 
 # Copy source
 COPY . .
